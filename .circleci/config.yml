@@ -281,7 +281,6 @@ jobs:
           password: ${SCALAR_GIT_PASSWORD}
         environment:
           ORACLE_PWD: Oracle18
-          ORACLE_PDB: ORACLE
 
     working_directory: ~/repo
 
