@@ -304,6 +304,12 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
+      # https://support.circleci.com/hc/en-us/articles/360006773953-Race-Conditions-Wait-For-Database
+      - run:
+         name: Wait for Oracle
+         # dockerize command is included in circleci/openjdk:8-jdk image
+         command: dockerize -wait tcp://localhost:1521 -timeout 10m
+
       # run tests!
       - run: gradle integrationTestJdbc -Dscalardb.jdbc.url=jdbc:oracle:thin:@localhost:1521/XEPDB1 -Dscalardb.jdbc.username=SYSTEM -Dscalardb.jdbc.password=Oracle18
 
