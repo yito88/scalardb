@@ -282,6 +282,8 @@ jobs:
         environment:
           ORACLE_PWD: Oracle18
 
+    resource_class: xlarge
+
     working_directory: ~/repo
 
     environment:
