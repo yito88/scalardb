@@ -282,8 +282,6 @@ jobs:
         environment:
           ORACLE_PWD: Oracle18
 
-    resource_class: medium+
-
     working_directory: ~/repo
 
     environment:
