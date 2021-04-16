@@ -275,6 +275,12 @@ jobs:
   integration-test-for-jdbc-oracle:
     docker:
       - image: circleci/openjdk:8-jdk
+      - image: ghcr.io/scalar-labs/oracle/database:18.4.0-xe
+        auth:
+          username: scalar-git
+          password: ${SCALAR_GIT_PASSWORD}
+        environment:
+          ORACLE_PWD: Oracle18
 
     working_directory: ~/repo
 
@@ -298,30 +304,17 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
-      - setup_remote_docker:
-          version: 19.03.13
-
+      # https://support.circleci.com/hc/en-us/articles/360006773953-Race-Conditions-Wait-For-Database
       - run:
-          name: Start Oracle Database
-          command: |
-            echo ${SCALAR_GIT_PASSWORD} | docker login ghcr.io -u scalar-git --password-stdin
-            docker pull ghcr.io/scalar-labs/oracle/database:18.4.0-xe
-            docker run --name oracle -e ORACLE_PWD=Oracle18 -d -p 1521:1521 -p 5500:5500 ghcr.io/scalar-labs/oracle/database:18.4.0-xe
-            # Wait for Oracle Database to be ready
-            for i in `seq 900`
-            do
-              docker logs oracle | grep "DATABASE IS READY TO USE!" > /dev/null && break
-              echo "Waiting for the database creation; waited:${i} seconds"
-              sleep 1
-            done
-            echo "docker logs oracle"
-            docker logs oracle
+          name: Wait for Oracle Database to be ready
+          # dockerize command is included in circleci/openjdk:8-jdk image
+          command: dockerize -wait tcp://localhost:5500 -timeout 15m
 
       # run tests!
-      - run: gradle integrationTestJdbc -Dscalardb.jdbc.url=jdbc:oracle:thin:@remote-docker:1521/XEPDB1 -Dscalardb.jdbc.username=SYSTEM -Dscalardb.jdbc.password=Oracle18
+      - run: gradle integrationTestJdbc -Dscalardb.jdbc.url=jdbc:oracle:thin:@localhost:1521/XEPDB1 -Dscalardb.jdbc.username=SYSTEM -Dscalardb.jdbc.password=Oracle18
 
       # run tests with the namespace prefix!
-      - run: gradle integrationTestJdbc -Dscalardb.jdbc.url=jdbc:oracle:thin:@remote-docker:1521/XEPDB1 -Dscalardb.jdbc.username=SYSTEM -Dscalardb.jdbc.password=Oracle18 -Dscalardb.namespace_prefix=ns_prefix
+      - run: gradle integrationTestJdbc -Dscalardb.jdbc.url=jdbc:oracle:thin:@localhost:1521/XEPDB1 -Dscalardb.jdbc.username=SYSTEM -Dscalardb.jdbc.password=Oracle18 -Dscalardb.namespace_prefix=ns_prefix
 
       - run:
           name: Save Gradle integration test reports
