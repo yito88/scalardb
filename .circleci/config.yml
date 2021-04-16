@@ -314,6 +314,8 @@ jobs:
               echo "Waiting for the database creation; waited:${i} seconds"
               sleep 1
             done
+            echo "docker logs oracle"
+            docker logs oracle
 
       # run tests!
       - run: gradle integrationTestJdbc -Dscalardb.jdbc.url=jdbc:oracle:thin:@localhost:1521/XEPDB1 -Dscalardb.jdbc.username=SYSTEM -Dscalardb.jdbc.password=Oracle18
