@@ -308,7 +308,7 @@ jobs:
             docker pull ghcr.io/scalar-labs/oracle/database:18.4.0-xe
             docker run --name oracle -e ORACLE_PWD=Oracle18 -d -p 1521:1521 -p 5500:5500 ghcr.io/scalar-labs/oracle/database:18.4.0-xe
             # Wait for Oracle Database to be ready
-            for i in `seq 600`
+            for i in `seq 900`
             do
               docker logs oracle | grep "DATABASE IS READY TO USE!" > /dev/null && break
               echo "Waiting for the database creation; waited:${i} seconds"
@@ -318,10 +318,10 @@ jobs:
             docker logs oracle
 
       # run tests!
-      - run: gradle integrationTestJdbc -Dscalardb.jdbc.url=jdbc:oracle:thin:@localhost:1521/XEPDB1 -Dscalardb.jdbc.username=SYSTEM -Dscalardb.jdbc.password=Oracle18
+      - run: gradle integrationTestJdbc -Dscalardb.jdbc.url=jdbc:oracle:thin:@remote-docker:1521/XEPDB1 -Dscalardb.jdbc.username=SYSTEM -Dscalardb.jdbc.password=Oracle18
 
       # run tests with the namespace prefix!
-      - run: gradle integrationTestJdbc -Dscalardb.jdbc.url=jdbc:oracle:thin:@localhost:1521/XEPDB1 -Dscalardb.jdbc.username=SYSTEM -Dscalardb.jdbc.password=Oracle18 -Dscalardb.namespace_prefix=ns_prefix
+      - run: gradle integrationTestJdbc -Dscalardb.jdbc.url=jdbc:oracle:thin:@remote-docker:1521/XEPDB1 -Dscalardb.jdbc.username=SYSTEM -Dscalardb.jdbc.password=Oracle18 -Dscalardb.namespace_prefix=ns_prefix
 
       - run:
           name: Save Gradle integration test reports
