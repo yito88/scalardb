@@ -302,7 +302,6 @@ jobs:
           name: Start Oracle Database
           command: |
             echo ${SCALAR_GIT_PASSWORD} | docker login ghcr.io -u scalar-git --password-stdin
-            docker pull ghcr.io/scalar-labs/oracle/database:18.4.0-xe
             docker run --name oracle -e ORACLE_PWD=Oracle18 -d -p 1521:1521 -p 5500:5500 ghcr.io/scalar-labs/oracle/database:18.4.0-xe
             # Wait for Oracle Database to be ready
             for i in `seq 600` do
